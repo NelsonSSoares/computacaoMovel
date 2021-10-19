@@ -15,68 +15,120 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+
+  //variáveis úteis para o App (globais):
+  TextEditingController alcoolController = TextEditingController();
+  TextEditingController gasolinaController = TextEditingController();
+  String _resultado = "Informe os valores";
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+  void _calculaCombustivelIdeal() {
+    double vAlcool = double.parse(alcoolController.text.replaceAll(',', '.'));
+    double vGasolina = double.parse(gasolinaController.text.replaceAll(',', '.'));
+    double proporcao = vAlcool / vGasolina;
+
+    // if(proporcao < 0.7) {
+    //   _resultado = "Abasteça com Álcool";
+    // } else {
+    //   _resultado = "Abasteça com Gasolina";
+    // }
+
+    setState(() {
+      _resultado = (proporcao < 0.7) ? "Abasteça com Álcool" : "Abasteça com Gasoina";
+      FocusScope.of(context).unfocus(); //abaixar o teclado
+    });
+  }
+
+  void _reset() {
+    setState(() {
+      alcoolController.text = "";
+      gasolinaController.text = "";
+      _resultado = "Informe os valores";
+      FocusScope.of(context).unfocus(); //abaixar o teclado
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
         title: const Text("Álcool ou Gasolina?"),
-        flexibleSpace: Container(
-          decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: <Color>[Colors.green, Colors.blue, Colors.yellow])),
-        ),
         actions: [
           IconButton(
-            onPressed: () {},
+            onPressed: () => _reset(),
             icon: const Icon(Icons.refresh),
             color: Colors.black,
           )
         ],
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(gradient: LinearGradient(
+              begin: Alignment.topLeft, end: Alignment.bottomRight,
+              colors: <Color>[Colors.green, Colors.blue, Colors.yellow])),
+        ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(10.0, 0, 10.0, 0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const SizedBox(
-              height: 20,
-            ),
-            const Icon(
-              Icons.local_gas_station,
-              size: 140.0,
-              color: Colors.blue,
-            ),
-            TextFormField(
-              keyboardType: TextInputType.number,
-              textAlign: TextAlign.center,
-              style: const TextStyle(color: Colors.blue),
-              decoration: const  InputDecoration(
-                  labelText: "Valor do Alcool",
-                  labelStyle: TextStyle(color: Colors.blue)
+        child: Form(
+          key: _formKey,
+          child: Column (
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const SizedBox(height: 40,),
+              const Icon(
+                Icons.local_gas_station,
+                size: 140.0,
+                color: Colors.blue,
               ),
-            ),
-            TextFormField(
-              keyboardType: TextInputType.number,
-              textAlign: TextAlign.center,
-              style: const TextStyle(color: Colors.blue),
-              decoration: const  InputDecoration(
-                  labelText: "Valor da Gasolina",
-                  labelStyle: TextStyle(color: Colors.blue)
+              TextFormField(
+                controller: alcoolController,
+                validator: (value) => value!.isEmpty ? "Informe o valor do Álcool" : null,
+                keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true, signed: false),
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: Colors.blue, fontSize: 26.0),
+                decoration: const InputDecoration(
+                    labelText: "Valor do Álcool",
+                    labelStyle: TextStyle(color: Colors.blue)
+                ),
               ),
-            ),
-            Padding(padding: const EdgeInsets.only(top: 20, bottom: 20),
-            child: SizedBox(
-              height: 60.0,
-              child: ElevatedButton(
-                onPressed:(){},
-                child: const Text("Verificar"),
+              TextFormField(
+                controller: gasolinaController,
+                validator: (value) => value!.isEmpty ? "Informe o valor da Gasolina" : null,
+                keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                    signed: false
+                ),
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: Colors.blue, fontSize: 26.0),
+                decoration: const InputDecoration(
+                    labelText: "Valor do Gasolina",
+                    labelStyle: TextStyle(color: Colors.blue)
+                ),
               ),
-            ),
-            )
-          ],
+              Padding(
+                padding: const EdgeInsets.only(top: 20, bottom: 20),
+                child: SizedBox(
+                    height: 60.0,
+                    child: ElevatedButton( //PARAMOS AQUI
+                      onPressed: () {
+                        if(_formKey.currentState!.validate()) {
+                          _calculaCombustivelIdeal();
+                        }
+                      },
+                      child: const Text("Verificar"),
+                    )
+                ),
+              ),
+              Text(
+                _resultado,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    color: Colors.lightBlue[900], fontSize: 26
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );
