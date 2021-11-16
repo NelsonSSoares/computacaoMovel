@@ -4,19 +4,20 @@ import 'package:http/http.dart' as http;
 import 'package:tempoapi/model/clima_model.dart';
 import 'dart:convert';
 
+import 'package:tempoapi/widgets/clima_widgets.dart';
+
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
 
   @override
   _HomeState createState() => _HomeState();
-
 }
 
 class _HomeState extends State<Home> {
+  late ClimaModel climaModel;
+  bool _carregando = false;
 
- late ClimaModel climaModel;
-
- final  List<String> _cidades = [
+  final List<String> _cidades = [
     "Aracaju",
     "Belém",
     "Belo Horizonte",
@@ -24,12 +25,13 @@ class _HomeState extends State<Home> {
     "Brasilia",
     "Campo Grande",
     "Cuiaba",
-    "Floarianopolis",
+    "Curitiba",
+    "Florianópolis",
     "Fortaleza",
-    "Giânia",
+    "Goiânia",
     "João Pessoa",
     "Macapá",
-    "Maceio",
+    "Maceió",
     "Manaus",
     "Natal",
     "Palmas",
@@ -39,7 +41,7 @@ class _HomeState extends State<Home> {
     "Rio Branco",
     "Rio de Janeiro",
     "Salvador",
-    "Sâo Luís",
+    "São Luís",
     "São Paulo",
     "Teresina",
     "Vitória"
@@ -47,12 +49,22 @@ class _HomeState extends State<Home> {
 
   String _cidadeSelecionada = "São Paulo";
 
-  carregaClima() async{
-    const String _apiURL = "api.openweathermap.org/"; //LINK API
-    const String _path = "data/2.5/weather";
-    const String _appid = "6e7b8fa6b5a64360dcee5b495b2fdfed"; // CHAVE API
+
+  @override
+  void initState() {
+    super.initState();
+        carregaClima();
+  }
+
+  carregaClima() async {
+    setState(() {
+      _carregando = true;
+    });
+    const String _apiURL = "api.openweathermap.org";
+    const String _path = "/data/2.5/weather";
+    const String _appid = "6e7b8fa6b5a64360dcee5b495b2fdfed"; //SUA chave de API
     const String _units = "metric";
-    const String _lang = "pt-br";
+    const String _lang = "pt_br";
 
     final _parametros = {
       "q": _cidadeSelecionada,
@@ -60,27 +72,32 @@ class _HomeState extends State<Home> {
       "units": _units,
       "lang": _lang
     };
-    //linha que faz a requisição para API
-    final climaResponse = await http.get(Uri.https(_apiURL, _path,_parametros));
-    //teste
-    //print('url funcioanndo ${climaResponse.request!.url.toString()}' );
-    // print(climaResponse.body);
 
-    if(climaResponse.statusCode == 200){
-      climaModel = ClimaModel.fromJson(jsonDecode(climaResponse.body));
+    //essa linha faz a requisição para a API externa:
+    final climaResponse =
+    await http.get(Uri.https(_apiURL, _path, _parametros));
+
+    //APENAS para testar:
+    //print("Url acessada: ${climaResponse.request!.url.toString()}");
+    //print(climaResponse.body);
+
+    if (climaResponse.statusCode == 200) {
+      setState(() {
+        _carregando = false;
+        climaModel = ClimaModel.fromJson(jsonDecode(climaResponse.body));
+      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-
-    /* pegando tamanho da tela*/
-
     double height = MediaQuery.of(context).size.height;
     var padding = MediaQuery.of(context).padding;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(_cidadeSelecionada),
+        centerTitle: true,
       ),
       body: Center(
         child: Column(
@@ -91,20 +108,47 @@ class _HomeState extends State<Home> {
               showSelectedItems: true,
               showSearchBox: true,
               maxHeight: height - padding.top - 60,
-              onChanged: (value){/* valor do item selecionado*/
-
+              onChanged: (value) {
                 setState(() {
                   _cidadeSelecionada = value!;
                   carregaClima();
                 });
-
-                },
-            )
+              },
+            ),
+            Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(6),
+                      child: _carregando
+                          ? const CircularProgressIndicator(
+                          strokeWidth: 3.0,
+                          valueColor: AlwaysStoppedAnimation(Colors.blue))
+                          : climaModel != null
+                          ? ClimaWidget(climaModel: climaModel)
+                          : Text(
+                        "Sem dados para exibir",
+                        style: Theme.of(context).textTheme.headline4,
+                      ),
+                    ),
+                    Padding(
+                        padding: EdgeInsets.all(8),
+                        child: _carregando
+                            ? Text("Carregando...",
+                            style: Theme.of(context).textTheme.headline5)
+                            : IconButton(
+                          onPressed: carregaClima,
+                          icon: const Icon(Icons.refresh),
+                          iconSize: 50,
+                          tooltip: "Recarregar",
+                          color: Colors.blue,
+                        ))
+                  ],
+                ))
           ],
         ),
-      )
+      ),
     );
   }
 }
-
- 
