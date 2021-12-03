@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:todo_app/screens/home.dart';
-import 'package:todo_app/theme/theme.dart';
+import 'package:todo_list/screens/home.dart';
+import 'package:todo_list/theme/theme.dart';
+
 void main() {
   runApp(MaterialApp(
-    title: "TODO LIST",
+    debugShowCheckedModeBanner: false,
+    title: "ToDo List",
     home: const Home(),
     themeMode: ThemeMode.system,
     theme: lightTheme(),
-    darkTheme: darkTheme()
+    darkTheme: darkTheme(),
   ));
 }
-

@@ -10,7 +10,7 @@ ThemeData darkTheme() {
       iconTheme: const IconThemeData(color: Colors.white),
       hintColor: Colors.orange,
       floatingActionButtonTheme:
-      const FloatingActionButtonThemeData(backgroundColor: Colors.white70),
+          const FloatingActionButtonThemeData(backgroundColor: Colors.white70),
       textTheme: const TextTheme(
           headline4: TextStyle(fontSize: 23, fontWeight: FontWeight.bold),
           headline5: TextStyle(fontSize: 23, fontWeight: FontWeight.w200)));
@@ -26,7 +26,7 @@ ThemeData lightTheme() {
       iconTheme: const IconThemeData(color: Colors.white),
       hintColor: Colors.orange,
       floatingActionButtonTheme:
-      const FloatingActionButtonThemeData(backgroundColor: Colors.orange),
+          const FloatingActionButtonThemeData(backgroundColor: Colors.orange),
       textTheme: const TextTheme(
           headline4: TextStyle(fontSize: 23, fontWeight: FontWeight.bold),
           headline5: TextStyle(fontSize: 23, fontWeight: FontWeight.w200)));
